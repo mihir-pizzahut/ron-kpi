@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pizza Hut Ron - KPI Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --red: #D0021B;
+    --dark-red: #A00015;
+    --green: #27AE60;
+    --dark-green: #1E8449;
+    --bg: #0F0F0F;
+    --surface: #1A1A1A;
+    --surface2: #222222;
+    --border: #2E2E2E;
+    --text: #EBEBEB;
+    --muted: #777;
+    --gold: #F5A623;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--dark-red) 0%, var(--red) 60%, #FF1A2E 100%);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(208,2,27,0.5);
+  }
+
+  .logo-box {
+    width: 48px;
+    height: 48px;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  header .subtitle {
+    font-size: 11px;
+    opacity: 0.75;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .reset-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { background: rgba(255,255,255,0.25); }
+
+  /* LAYOUT */
+  .layout {
+    display: flex;
+    min-height: calc(100vh - 84px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 90px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: sticky;
+    top: 84px;
+    height: calc(100vh - 84px);
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .period-btn {
+    width: 100%;
+    padding: 10px 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+  }
+
+  .period-btn:hover {
+    background: var(--surface2);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .period-btn.active {
+    background: var(--red);
+    color: white;
+    border-color: var(--dark-red);
+    box-shadow: 0 0 12px rgba(208,2,27,0.4);
+  }
+
+  .period-btn .p-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    display: none;
+  }
+
+  .period-btn.has-data .p-dot { display: block; }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    padding: 24px;
+    overflow-x: auto;
+  }
+
+  /* LEADERBOARD */
+  .leaderboard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+
+  .lb-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .lb-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+  }
+
+  .lb-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .lb-section {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .lb-section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lb-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .store-rank {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .store-rank:last-child { border-bottom: none; }
+
+  .rank-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    width: 22px;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .rank-1 .rank-num { color: var(--gold); }
+  .rank-2 .rank-num { color: #C0C0C0; }
+  .rank-3 .rank-num { color: #CD7F32; }
+
+  .rank-name {
+    font-size: 13px;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .rank-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .rank-bar {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--green), #2ECC71);
+    transition: width 0.4s ease;
+  }
+
+  .rank-score {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* WEEK TABS */
+  .week-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .week-tab {
+    padding: 8px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .week-tab:hover { background: var(--surface2); color: var(--text); }
+
+  .week-tab.active {
+    background: var(--surface2);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  /* KPI TABLE */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+  }
+
+  thead tr {
+    background: var(--surface2);
+  }
+
+  th {
+    padding: 10px 6px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+
+  th:first-child {
+    text-align: left;
+    padding-left: 16px;
+    width: 130px;
+    position: sticky;
+    left: 0;
+    background: var(--surface2);
+    z-index: 2;
+  }
+
+  th.kpi-group-a { border-top: 3px solid var(--red); }
+  th.kpi-group-b { border-top: 3px solid var(--gold); }
+  th.kpi-group-c { border-top: 3px solid #3498DB; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  td {
+    padding: 8px 6px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    font-size: 13px;
+    position: sticky;
+    left: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  tr:hover td:first-child { background: rgba(30,30,30,1); }
+
+  /* CHECKBOX */
+  .kpi-check {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+    outline: none;
+    position: relative;
+  }
+
+  .kpi-check.unchecked {
+    background: rgba(208,2,27,0.18);
+    border: 1.5px solid rgba(208,2,27,0.4);
+    color: transparent;
+  }
+
+  .kpi-check.unchecked:hover {
+    background: rgba(208,2,27,0.3);
+    transform: scale(1.08);
+  }
+
+  .kpi-check.checked {
+    background: rgba(39,174,96,0.2);
+    border: 1.5px solid rgba(39,174,96,0.5);
+    color: var(--green);
+  }
+
+  .kpi-check.checked:hover {
+    background: rgba(39,174,96,0.3);
+    transform: scale(1.08);
+  }
+
+  /* STORE SCORE */
+  .store-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+  }
+
+  .score-cell {
+    background: var(--surface2);
+    font-weight: 700;
+  }
+
+  /* PERIOD LABEL */
+  .period-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .period-label h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+
+  .period-label .week-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* TOTAL ROW */
+  tfoot tr {
+    background: var(--surface2);
+    border-top: 2px solid var(--border);
+  }
+
+  tfoot td {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tfoot td:first-child {
+    background: var(--surface2);
+    color: var(--muted);
+  }
+
+  .col-total {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+  }
+
+  .col-pct {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .lb-grid { grid-template-columns: 1fr; }
+    .sidebar { width: 60px; }
+    .period-btn { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-box">🍕</div>
+  <div>
+    <h1>Ron - KPI Tracker</h1>
+    <div class="subtitle">Pizza Hut · Ron's Area</div>
+  </div>
+  <div class="header-right">
+    <button class="reset-btn" onclick="resetCurrentView()">↺ Reset Week</button>
+    <button class="reset-btn" onclick="exportData()">⬇ Export</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+const STORES = ['Brantford', 'Chatham', 'Sarnia', 'Huron Line', 'Hespeler Rd', 'Tillsonburg', 'Woodstock'];
+
+const KPIS = [
+  { key: 'hut_university',      label: 'Hut University',       group: 'a' },
+  { key: 'optimal_staff',       label: 'Optimal Staff',        group: 'a' },
+  { key: 'sales',               label: 'Sales',                group: 'a' },
+  { key: 'spmh',                label: 'SPMH',                 group: 'a' },
+  { key: 'tpmh',                label: 'TPMH',                 group: 'a' },
+  { key: 'upsell_pick2',        label: 'Upsell Pick 2',        group: 'a' },
+  { key: 'stuffed_crust',       label: 'Stuffed Crust',        group: 'a' },
+  { key: 'lsm',                 label: 'LSM',                  group: 'b' },
+  { key: 'cos',                 label: 'COS',                  group: 'b' },
+  { key: 'col',                 label: 'COL',                  group: 'b' },
+  { key: 'overtime',            label: 'Overtime',             group: 'b' },
+  { key: 'cpd',                 label: 'CPD',                  group: 'b' },
+  { key: 'atd',                 label: 'ATD',                  group: 'b' },
+  { key: 'hutbot',              label: 'HutBot',               group: 'b' },
+  { key: 'five_star',           label: '5★ Scorecard',         group: 'c' },
+  { key: 'osat',                label: 'OSAT',                 group: 'c' },
+  { key: 'win_score',           label: 'Win Score',            group: 'c' },
+  { key: 'taste_score',         label: 'Taste Score',          group: 'c' },
+  { key: 'speed_score',         label: 'Speed Score',          group: 'c' },
+  { key: 'connection_score',    label: 'Connection',           group: 'c' },
+];
+
+const TOTAL_PERIODS = 13;
+const WEEKS = [1, 2, 3, 4];
+
+let state = {
+  activePeriod: 1,
+  activeWeek: 1,
+  data: {}  // data[p][w][store][kpi] = bool
+};
+
+function dataKey(p, w, store, kpi) {
+  return `p${p}_w${w}_${store}_${kpi}`;
+}
+
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem('ph_kpi_tracker_ron_v2');
+    if (saved) state.data = JSON.parse(saved);
+  } catch(e) {}
+}
+
+
+function saveData() {
+  try {
+    localStorage.setItem('ph_kpi_tracker_ron_v2', JSON.stringify(state.data));
+  } catch(e) {}
+}
+
+function getVal(p, w, store, kpi) {
+  return !!(state.data[`p${p}_w${w}_${store}_${kpi}`]);
+}
+
+function setVal(p, w, store, kpi, val) {
+  const k = `p${p}_w${w}_${store}_${kpi}`;
+  if (val) state.data[k] = true;
+  else delete state.data[k];
+  saveData();
+}
+
+function storeScoreForWeek(p, w, store) {
+  return KPIS.filter(k => getVal(p, w, store, k.key)).length;
+}
+
+function storeScoreForPeriod(p, store) {
+  let total = 0;
+  WEEKS.forEach(w => { total += storeScoreForWeek(p, w, store); });
+  return total;
+}
+
+function storeScoreYTD(store) {
+  let total = 0;
+  for (let p = 1; p <= TOTAL_PERIODS; p++) {
+    total += storeScoreForPeriod(p, store);
+  }
+  return total;
+}
+
+function periodHasData(p) {
+  return STORES.some(store => WEEKS.some(w => KPIS.some(k => getVal(p, w, store, k.key))));
+}
+
+function getLatestPeriodWithData() {
+  for (let p = TOTAL_PERIODS; p >= 1; p--) {
+    if (periodHasData(p)) return p;
+  }
+  return state.activePeriod;
+}
+
+/* ---- RENDER ---- */
+
+function renderSidebar() {
+  const sb = document.getElementById('sidebar');
+  sb.innerHTML = '';
+  for (let p = 1; p <= TOTAL_PERIODS; p++) {
+    const btn = document.createElement('button');
+    btn.className = 'period-btn' + (p === state.activePeriod ? ' active' : '') + (periodHasData(p) ? ' has-data' : '');
+    btn.innerHTML = `P${p}<span class="p-dot"></span>`;
+    btn.onclick = () => { state.activePeriod = p; render(); };
+    sb.appendChild(btn);
+  }
+}
+
+function renderLeaderboard() {
+  const latestP = getLatestPeriodWithData();
+
+  const periodRanks = [...STORES].map(s => ({
+    name: s,
+    score: storeScoreForPeriod(latestP, s),
+    max: KPIS.length * 4
+  })).sort((a,b) => b.score - a.score);
+
+  const ytdRanks = [...STORES].map(s => ({
+    name: s,
+    score: storeScoreYTD(s),
+    max: KPIS.length * 4 * TOTAL_PERIODS
+  })).sort((a,b) => b.score - a.score);
+
+  const maxP = Math.max(...periodRanks.map(r => r.score), 1);
+  const maxY = Math.max(...ytdRanks.map(r => r.score), 1);
+
+  function renderRanks(ranks, maxScore) {
+    return ranks.map((r, i) => `
+      <div class="store-rank rank-${i+1}">
+        <span class="rank-num">${i+1}</span>
+        <span class="rank-name">${r.name}</span>
+        <div class="rank-bar-wrap">
+          <div class="rank-bar" style="width:${maxScore > 0 ? Math.round((r.score/maxScore)*100) : 0}%"></div>
+        </div>
+        <span class="rank-score">${r.score}</span>
+      </div>
+    `).join('');
+  }
+
+  return `
+    <div class="leaderboard">
+      <div class="lb-header">
+        <span style="font-size:20px">🏆</span>
+        <span class="lb-title">Store Leaderboard</span>
+      </div>
+      <div class="lb-grid">
+        <div class="lb-section">
+          <div class="lb-section-title">Latest Period · P${latestP}</div>
+          ${renderRanks(periodRanks, maxP)}
+        </div>
+        <div class="lb-section">
+          <div class="lb-section-title">Year-to-Date · All Periods</div>
+          ${renderRanks(ytdRanks, maxY)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderKpiTable() {
+  const p = state.activePeriod;
+  const w = state.activeWeek;
+
+  // Header
+  const headerCells = KPIS.map(k =>
+    `<th class="kpi-group-${k.group}" title="${k.label}">${k.label}</th>`
+  ).join('');
+
+  // Column totals per KPI
+  const kpiTotals = KPIS.map(k => ({
+    key: k.key,
+    count: STORES.filter(s => getVal(p, w, s, k.key)).length
+  }));
+
+  // Rows
+  const rows = STORES.map(store => {
+    const cells = KPIS.map(k => {
+      const checked = getVal(p, w, store, k.key);
+      return `<td>
+        <button class="kpi-check ${checked ? 'checked' : 'unchecked'}"
+          onclick="toggleKpi(${p}, ${w}, '${store}', '${k.key}', this)"
+          title="${store} — ${k.label}">
+          ${checked ? '✓' : ''}
+        </button>
+      </td>`;
+    }).join('');
+
+    const weekScore = storeScoreForWeek(p, w, store);
+    const pScore = storeScoreForPeriod(p, store);
+
+    return `<tr>
+      <td>${store}
+        <div style="font-size:10px;color:var(--muted);font-weight:400;margin-top:2px">W${w}: <b style="color:var(--text)">${weekScore}</b> / P${p}: <b style="color:var(--gold)">${pScore}</b></div>
+      </td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  // Footer with column totals
+  const footerCells = kpiTotals.map(t => {
+    const pct = Math.round((t.count / STORES.length) * 100);
+    const color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--gold)' : 'var(--red)';
+    return `<td><span class="col-total" style="color:${color}">${t.count}/${STORES.length}</span><br><span class="col-pct">${pct}%</span></td>`;
+  }).join('');
+
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Store</th>
+            ${headerCells}
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr>
+            <td>Team Total</td>
+            ${footerCells}
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  `;
+}
+
+function renderMain() {
+  const p = state.activePeriod;
+  const w = state.activeWeek;
+
+  const weekTabs = WEEKS.map(wk => `
+    <button class="week-tab ${wk === w ? 'active' : ''}" onclick="setWeek(${wk})">Week ${wk}</button>
+  `).join('');
+
+  document.getElementById('main').innerHTML = `
+    ${renderLeaderboard()}
+    <div class="period-label">
+      <h2>Period ${p}</h2>
+      <span class="week-label">Select a week to enter KPI data</span>
+    </div>
+    <div class="week-tabs">${weekTabs}</div>
+    ${renderKpiTable()}
+  `;
+}
+
+function render() {
+  renderSidebar();
+  renderMain();
+}
+
+function toggleKpi(p, w, store, kpi, btn) {
+  const current = getVal(p, w, store, kpi);
+  const newVal = !current;
+  setVal(p, w, store, kpi, newVal);
+  btn.className = 'kpi-check ' + (newVal ? 'checked' : 'unchecked');
+  btn.innerHTML = newVal ? '✓' : '';
+
+  // Update store score display in the row
+  const row = btn.closest('tr');
+  const weekScore = storeScoreForWeek(p, w, store);
+  const pScore = storeScoreForPeriod(p, store);
+  const scoreDiv = row.querySelector('td:first-child div');
+  if (scoreDiv) {
+    scoreDiv.innerHTML = `W${w}: <b style="color:var(--text)">${weekScore}</b> / P${p}: <b style="color:var(--gold)">${pScore}</b>`;
+  }
+
+  // Update column total in footer
+  const cellIndex = btn.closest('td').cellIndex;
+  const table = btn.closest('table');
+  const footerCell = table.tFoot.rows[0].cells[cellIndex];
+  const kpiIdx = cellIndex - 1;
+  const kpiKey = KPIS[kpiIdx].key;
+  const count = STORES.filter(s => getVal(p, w, s, kpiKey)).length;
+  const pct = Math.round((count / STORES.length) * 100);
+  const color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--gold)' : 'var(--red)';
+  footerCell.innerHTML = `<span class="col-total" style="color:${color}">${count}/${STORES.length}</span><br><span class="col-pct">${pct}%</span>`;
+
+  // Update leaderboard
+  document.querySelector('.leaderboard').outerHTML = renderLeaderboard();
+  renderSidebar();
+}
+
+function setWeek(w) {
+  state.activeWeek = w;
+  renderMain();
+}
+
+function resetCurrentView() {
+  if (!confirm(`Reset ALL KPI data for Period ${state.activePeriod} Week ${state.activeWeek}?`)) return;
+  const p = state.activePeriod;
+  const w = state.activeWeek;
+  STORES.forEach(store => KPIS.forEach(k => setVal(p, w, store, k.key, false)));
+  renderMain();
+  renderSidebar();
+}
+
+function exportData() {
+  const rows = [['Period', 'Week', 'Store', ...KPIS.map(k => k.label)]];
+  for (let p = 1; p <= TOTAL_PERIODS; p++) {
+    WEEKS.forEach(w => {
+      STORES.forEach(store => {
+        const vals = KPIS.map(k => getVal(p, w, store, k.key) ? '1' : '0');
+        rows.push([`P${p}`, `W${w}`, store, ...vals]);
+      });
+    });
+  }
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pizza_hut_kpi_ron_export.csv';
+  a.click();
+}
+
+// Init
+loadData();
+render();
+</script>
+</body>
+</html>
